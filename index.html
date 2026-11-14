@@ -1,0 +1,249 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ZENIXX STORE</title>
+<style>
+:root{
+--bg:#090909;
+--panel:#181818;
+--main:#ed1735;
+--text:#ffffff;
+}
+*{box-sizing:border-box}
+body{
+margin:0;background:var(--bg);
+color:var(--text);font-family:Arial;
+}
+header{
+padding:20px;text-align:center;
+background:var(--panel);
+border-bottom:2px solid var(--main);
+}
+.logo{font-size:27px;font-weight:bold}
+.logo span{color:var(--main)}
+nav{
+display:flex;gap:8px;flex-wrap:wrap;
+justify-content:center;padding:12px;
+background:#111;
+}
+button{
+border:0;padding:11px 15px;
+background:var(--main);color:white;
+border-radius:7px;cursor:pointer;
+}
+button:hover{opacity:.8}
+.container{max-width:1100px;margin:auto;padding:20px}
+.card{
+background:var(--panel);
+padding:18px;border-radius:12px;
+border:1px solid #333;
+}
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:15px;
+}
+input,textarea,select{
+width:100%;padding:12px;margin:7px 0;
+background:#222;color:white;
+border:1px solid #444;border-radius:7px;
+}
+h2{color:var(--main)}
+.hidden{display:none}
+.wheel{
+width:230px;height:230px;
+border-radius:50%;
+margin:20px auto;
+background:conic-gradient(
+#ff243e 0deg 60deg,
+#242424 60deg 120deg,
+#ff243e 120deg 180deg,
+#242424 180deg 240deg,
+#ff243e 240deg 300deg,
+#242424 300deg 360deg);
+border:7px solid white;
+transition:transform 4s cubic-bezier(.15,.7,.15,1);
+}
+.result{text-align:center;font-size:20px;color:#ff4055}
+</style>
+</head>
+<body>
+
+<header>
+<div class="logo" id="shopName">ZENIXX <span>STORE</span></div>
+<p>YOUR CUSTOM GAMING WEBSITE</p>
+</header>
+
+<nav>
+<button onclick="openPage('home')">Trang chủ</button>
+<button onclick="openPage('wheelPage')">Vòng quay KC</button>
+<button onclick="openPage('blindPage')">Túi mù</button>
+<button onclick="openPage('shopPage')">Sản phẩm</button>
+<button onclick="openPage('accountPage')">Tài khoản</button>
+<button onclick="openPage('adminPage')">Admin</button>
+</nav>
+
+<div class="container">
+
+<section id="home">
+<div class="card">
+<h1>WELCOME TO ZENIXX STORE</h1>
+<p>Website custom Free Fire</p>
+</div>
+<h2>Danh mục</h2>
+<div class="grid">
+<div class="card"><h3>🎡 Vòng quay KC</h3><button onclick="openPage('wheelPage')">Truy cập</button></div>
+<div class="card"><h3>🎁 Túi mù</h3><button onclick="openPage('blindPage')">Truy cập</button></div>
+<div class="card"><h3>🛒 Sản phẩm</h3><button onclick="openPage('shopPage')">Truy cập</button></div>
+</div>
+</section>
+
+<section id="wheelPage" class="hidden">
+<h2>🎡 VÒNG QUAY KIM CƯƠNG</h2>
+<div class="card">
+<div class="wheel" id="wheel"></div>
+<button onclick="spin()">QUAY NGAY</button>
+<div class="result" id="wheelResult">Chưa có kết quả</div>
+</div>
+</section>
+
+<section id="blindPage" class="hidden">
+<h2>🎁 TÚI MÙ</h2>
+<div class="grid" id="blindList"></div>
+</section>
+
+<section id="shopPage" class="hidden">
+<h2>🛒 SẢN PHẨM</h2>
+<div class="grid" id="productList"></div>
+</section>
+
+<section id="accountPage" class="hidden">
+<h2>TÀI KHOẢN</h2>
+<div class="card">
+<input placeholder="Tên tài khoản">
+<input placeholder="Email">
+<button>Đăng nhập</button>
+<button>Đăng ký</button>
+</div>
+</section>
+
+<section id="adminPage" class="hidden">
+<h2>⚙️ TRANG CUSTOM ADMIN</h2>
+
+<div class="grid">
+<div class="card">
+<h3>Thông tin website</h3>
+<input id="customName" placeholder="Tên website">
+<input id="customColor" type="color" value="#ed1735">
+<button onclick="saveTheme()">Lưu giao diện</button>
+</div>
+
+<div class="card">
+<h3>Thêm phần thưởng vòng quay</h3>
+<input id="rewardName" placeholder="Tên phần thưởng">
+<input id="rewardChance" type="number" placeholder="Tỷ lệ (%)">
+<button onclick="addReward()">Thêm phần thưởng</button>
+<div id="rewardList"></div>
+</div>
+
+<div class="card">
+<h3>Thêm túi mù</h3>
+<input id="blindName" placeholder="Tên túi mù">
+<input id="blindPrice" type="number" placeholder="Giá túi">
+<button onclick="addBlind()">Thêm túi mù</button>
+</div>
+
+<div class="card">
+<h3>Thêm sản phẩm</h3>
+<input id="productName" placeholder="Tên sản phẩm">
+<input id="productPrice" type="number" placeholder="Giá sản phẩm">
+<button onclick="addProduct()">Thêm sản phẩm</button>
+</div>
+</div>
+</section>
+
+</div>
+
+<script>
+let config={
+rewards:[],
+blinds:[],
+products:[]
+};
+
+function save(){
+localStorage.setItem("zenixx_config",JSON.stringify(config));
+}
+function load(){
+let d=localStorage.getItem("zenixx_config");
+if(d)config=JSON.parse(d);
+renderAll();
+}
+function openPage(id){
+document.querySelectorAll("section").forEach(x=>x.classList.add("hidden"));
+document.getElementById(id).classList.remove("hidden");
+}
+function saveTheme(){
+let name=customName.value;
+let color=customColor.value;
+if(name)shopName.innerHTML=name;
+document.documentElement.style.setProperty("--main",color);
+}
+function addReward(){
+let name=rewardName.value.trim();
+let chance=Number(rewardChance.value);
+if(!name||chance<=0||chance>100)return alert("Thông tin không hợp lệ");
+config.rewards.push({name,chance});
+save();renderAll();
+rewardName.value="";rewardChance.value="";
+}
+function spin(){
+if(!config.rewards.length)return alert("Admin chưa thêm phần thưởng");
+let total=config.rewards.reduce((s,x)=>s+x.chance,0);
+if(total!==100)return alert("Tổng tỷ lệ phần thưởng phải bằng 100%");
+let r=Math.random()*100,acc=0;
+let winner=config.rewards.find(x=>{
+acc+=x.chance;return r<acc;
+});
+wheel.style.transform=`rotate(${1440+Math.random()*720}deg)`;
+setTimeout(()=>wheelResult.innerText="Phần thưởng: "+winner.name,4000);
+}
+function addBlind(){
+let name=blindName.value.trim();
+let price=Number(blindPrice.value);
+if(!name||price<0||!Number.isFinite(price))return;
+config.blinds.push({name,price});
+save();renderAll();
+}
+function addProduct(){
+let name=productName.value.trim();
+let price=Number(productPrice.value);
+if(!name||price<0||!Number.isFinite(price))return;
+config.products.push({name,price});
+save();renderAll();
+}
+function renderAll(){
+blindList.innerHTML=config.blinds.map((x,i)=>`
+<div class="card">
+<h3>🎁 ${x.name}</h3>
+<p>Giá: ${x.price}đ</p>
+<button onclick="openBlind(${i})">Mở túi</button>
+</div>`).join("");
+productList.innerHTML=config.products.map(x=>`
+<div class="card"><h3>${x.name}</h3><p>${x.price}đ</p></div>
+`).join("");
+rewardList.innerHTML=config.rewards.map(x=>
+`<p>${x.name} — ${x.chance}%</p>`
+).join("");
+}
+function openBlind(i){
+alert("Túi mù: "+config.blinds[i].name+
+"\nHãy cấu hình danh sách vật phẩm trước khi sử dụng.");
+}
+load();
+</script>
+</body>
+</html>
